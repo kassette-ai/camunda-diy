@@ -1,0 +1,32 @@
+camunda.bpm:
+  admin-user:
+    id: demo
+    password: demo
+    firstName: Demo
+  filter:
+    create: All tasks
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: camunda_user
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+server:
+  port: 8090
+camunda:
+  bpm:
+    history-level: full
+    database:
+      type: postgres
+      schema-update: true
+    job-execution:
+      deployment-aware: true
+    eventing:
+      history: true
+
+
+
+  #camunda.bpm.database.schema-update=create-drop
+

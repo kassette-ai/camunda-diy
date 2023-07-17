@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: camunda-diy-service
+  namespace: camunda-diy
+spec:
+  selector:
+    app: camunda-diy-workflow
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8090

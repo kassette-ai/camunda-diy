@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: List
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: camunda-poker
+    labels:
+      app: camunda-poker
+    namespace: camunda-diy
+  spec:
+    selector:
+      matchLabels:
+        app: camunda-poker
+    template:
+      metadata:
+        labels:
+          app: camunda-poker
+      spec:
+        containers:
+        - image: spotify/alpine
+          name: camunda-poker
+          imagePullPolicy: Always
+          command: [ "bash" ]
+          args: [ "/usr/local/camunda/camunda_poker.sh" ]
+          volumeMounts:
+          - mountPath:  /usr/local/camunda
+            name: camunda-poker-config
+        volumes:
+        - name: camunda-poker-config
+          configMap:
+            name: camunda-poker-config
+            items:
+            - key: script
+              path: camunda_poker.sh
+        imagePullSecrets:
+        - name: registrykey

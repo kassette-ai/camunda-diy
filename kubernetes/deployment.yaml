@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: camunda-diy-workflow
+  namespace: camunda-diy
+spec:
+  selector:
+    matchLabels:
+      app: camunda-diy-workflow
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: camunda-diy-workflow
+    spec:
+      containers:
+        - name: camunda-diy
+          image: metaops/camunda-diy:latest
+          imagePullPolicy: Always 
+          #command: [ "/bin/sh", "-c", "sleep 36000000" ]
+          ports:
+            - name: http
+              containerPort: 8090
+          env:
+            - name: DB_NAME 
+              value: workflow
+            - name: DB_USER
+              value: camundadiy
+            - name: DB_PASSWORD
+              value: camundadiy
+            - name: DB_HOST
+              value: postgres-postgresql

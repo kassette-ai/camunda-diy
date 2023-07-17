@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    ports:
+      - 5431:5432  
+    environment:
+      POSTGRES_USER: camunda
+      POSTGRES_PASSWORD: camunda
+      POSTGRES_DB: workflow
+
+  java-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    ports:
+      - 8090:8090
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: workflow
+      DB_USER: camunda
+      DB_PASSWORD: camunda
+  
+  camunda-poker:
+    image: spotify/alpine
+    volumes:
+    - ./scripts/restaurant_journey.sh:/opt/restaurant_journey.sh
+    command: bash -c "apk update && apk add jq && /opt/restaurant_journey.sh"
+    depends_on:
+      - java-app
+    environment:
+      CAMUNDA_HOST: java-app
