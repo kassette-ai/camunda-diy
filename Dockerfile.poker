@@ -1,0 +1,6 @@
+FROM spotify/alpine
+
+RUN apk update && apk add jq
+COPY scripts/restaurant_journey.sh /opt/restaurant_journey.sh
+RUN chmod 0755 /opt/restaurant_journey.sh
+ENTRYPOINT ["/opt/restaurant_journey.sh"]

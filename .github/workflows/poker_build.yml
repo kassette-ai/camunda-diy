@@ -1,0 +1,29 @@
+
+name: package poker
+
+on: workflow_dispatch
+
+
+env:
+  IMAGE_NAME: metaops/camunda-diy-poker
+
+
+jobs:
+  build:
+
+    runs-on: self-hosted  
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: docker build
+      run:  docker build . --file Dockerfile.poker --tag ${{ env.IMAGE_NAME }}:latest
+
+    - name: docker login
+      if: github.event_name != 'pull_request'
+      run: docker login $DOCKER_REGISTRY -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
+
+    - name: docker push
+      if: github.event_name != 'pull_request'
+      run: docker push ${{ env.IMAGE_NAME }}:latest
+
