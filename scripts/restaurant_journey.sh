@@ -14,6 +14,7 @@ CURL='curl -s -H "Content-Type: application/json"'
 NN=0
 while true; do
 	customer="customer${NN}"
+        RANDOM_CHANCE=$((RANDOM%100)) # some randomness for droping early from a cycle
 	WAITING_CUSTOMERS=`jobs -r | wc -l | tr -d " "`
         while [[ $WAITING_CUSTOMERS -gt $MAX_WAITING_CUSTOMERS ]]; do
 		sleep 5
@@ -23,6 +24,16 @@ while true; do
 	echo "CUSTOMER: ${customer}  --- walking into a restaurant"
 	PROCESS_INSTANCE_ID=`curl -s -H "Content-Type: application/json" $CAMUNDA_REST_URL/process-definition/key/guest_food_consumption/start \
 		-X POST -d "{\"businessKey\" : \"${customer}\" }"|jq -r '.id'`
+
+	if [ $RANDOM_CHANCE -lt 10 ];
+	then
+		sleep 30 
+                let NN=$NN+1 
+		echo "CUSTOMER: ${customer}  --- can't wait, I am leaving"
+		continue  # can't wait, I am leaving
+	fi
+		
+
 	echo "CUSTOMER: ${customer}  --- Getting task id which should be completed manually"
 	TASK_ID=`curl -s -H "Content-Type: application/json" "$CAMUNDA_REST_URL/task?processInstanceId=${PROCESS_INSTANCE_ID}&name=wait+for+turn"| jq -r '.[0].id'`
 	echo "CUSTOMER: ${customer}  --- Completing task ${TASK_ID}"
@@ -41,6 +52,14 @@ while true; do
 		-X POST -d "{\"messageName\" : \"Message_employee_request_meal\", \"businessKey\" : \"${customer}\", 
 	                \"processVariables\": { \"chefPrepTime\": { 
 			\"value\": \"PT${MEAL_PREP_TIME}S\", \"type\": \"String\" } } }"
+	if [ $RANDOM_CHANCE -gt 10 ] && [ $RANDOM_CHANCE -lt 20 ];
+	then
+		sleep 30 
+                let NN=$NN+1 
+		echo "CUSTOMER: ${customer}  --- can't wait, I am leaving, just feed it to pigs"
+		continue  # can't wait, I am leaving
+	fi
+
         ( sleep $MEAL_PREP_TIME && curl -s -H "Content-Type: application/json" $CAMUNDA_REST_URL/message \
 		-X POST -d "{\"messageName\" : \"Message_chef_meal_ready\", \"businessKey\" : \"${customer}\"}" && \
 		curl -s -H "Content-Type: application/json" $CAMUNDA_REST_URL/message \
